@@ -1,0 +1,10 @@
+.controlArea{
+    -fx-background-color: #d6d6d6;
+}
+.controlBtn{
+    -fx-background-color: #b7b7b7;
+
+}
+.controlBtn:pressed{
+    -fx-background-color: #a7a7a7;
+}

@@ -3,12 +3,13 @@ import javafx.geometry.Point2D;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Button;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.StackPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
-
-import java.util.ArrayList;
 
 
 //HekaBranch
@@ -20,60 +21,95 @@ public class Main extends Application {
 
     int gridDim = 3;
     int prefSize = 500;
+    int controlAreaSize = 50;
+    int movesLeft = gridDim * gridDim;
     int turnID = 2;  //O - Starts here  // O - 2   X - 3
     boolean gameFinished = false;
+    Button resetBtn;
+    Point2D[] positions = generatePositions(prefSize);
+    int[] availablePos = generateAvailablePos(positions.length);
 
     @Override
     public void start(Stage window) throws Exception {
 
         Color bgColor = Color.web("#d6d6d6");
-        Point2D[] positions = generatePositions(prefSize);
-        int[] availablePos = generateAvailablePos(positions.length);
 
+        resetBtn = new Button("Click to reset");
         Canvas canvas = new Canvas(prefSize, prefSize);
+
         GraphicsContext gc = canvas.getGraphicsContext2D();
         clearScreen(gc, bgColor);
         drawGrid(gc, Color.BLACK);
 
-        canvas.setOnMouseClicked(e -> {
-            int closestIndex = getClosestIndex(positions, e.getSceneX(), e.getSceneY());
+        VBox layout = new VBox();
+        HBox controlArea = new HBox();
 
-            if (availablePos[closestIndex] == 1 && !gameFinished) {
-                if (turnID == 3) {
-                    drawX(gc, Color.RED, positions[closestIndex].getX(), positions[closestIndex].getY());
-                    availablePos[closestIndex] = 3;
-                }
-                if (turnID == 2) {
-                    drawZero(gc, Color.RED, positions[closestIndex].getX(), positions[closestIndex].getY());
-                    availablePos[closestIndex] = 2;
-                }
+        resetBtn.setTextAlignment(TextAlignment.CENTER);
+        resetBtn.setPrefSize(prefSize, controlAreaSize);
+        resetBtn.getStyleClass().add("controlBtn");
 
-                int winnerID = winChecker(availablePos);
-                if (winnerID != 0) {
-                    gameFinished = true;
-                    System.out.println("Winner is " + winnerID);
-                }
-
-                if (turnID == 3) turnID = 2;
-                else if (turnID == 2) turnID = 3;
-
-            }
-        });
+        controlArea.setPrefSize(prefSize, controlAreaSize);
+        controlArea.getStylesheets().add("style.css");
+        controlArea.getStyleClass().add("controlArea");
 
 
-        StackPane layout = new StackPane();
-        layout.getChildren().add(canvas);
-        Scene scene = new Scene(layout, prefSize, prefSize);
+        canvas.setOnMouseClicked(e -> handleTurn(e, gc));
+        resetBtn.setOnMouseClicked(e -> reset(gc, bgColor, Color.BLACK));
+
+        controlArea.getChildren().add(resetBtn);
+        layout.getChildren().addAll(canvas, controlArea);
+        Scene scene = new Scene(layout, prefSize, prefSize + controlAreaSize);
+
         window.setTitle("Tic Tac Toe");
         window.setScene(scene);
         window.show();
 
     }
 
-    //TODO: move mouse handler into a separate function
-    public void handleMouseClick(MouseEvent e){
+    public void handleTurn(MouseEvent e, GraphicsContext gc) {
+        int closestIndex = getClosestIndex(positions, e.getSceneX(), e.getSceneY());
+
+        if (availablePos[closestIndex] == 1 && !gameFinished) {
+            if (turnID == 3) {
+                drawX(gc, Color.RED, positions[closestIndex].getX(), positions[closestIndex].getY());
+                availablePos[closestIndex] = 3;
+            }
+            if (turnID == 2) {
+                drawZero(gc, Color.RED, positions[closestIndex].getX(), positions[closestIndex].getY());
+                availablePos[closestIndex] = 2;
+            }
+
+            int winnerID = winChecker(availablePos);
+            if (winnerID != 0) {
+                gameFinished = true;
+                String winner = winnerID == 2 ? "O" : "X";
+                resetBtn.setText("Winner is " + winner + "\nClick to reset");
+                return;
+            }
+
+            if (turnID == 3) turnID = 2;
+            else if (turnID == 2) turnID = 3;
+            movesLeft--;
+
+            if (movesLeft == 0) {
+                gameFinished = true;
+                resetBtn.setText("Tie\nClick to reset");
+            }
+        }
 
     }
+
+    public void reset(GraphicsContext gc, Color bgColor, Color gridColor) {
+        clearScreen(gc, bgColor);
+        drawGrid(gc, Color.BLACK);
+        positions = generatePositions(prefSize);
+        availablePos = generateAvailablePos(positions.length);
+        gameFinished = false;
+        resetBtn.setText("Click to reset");
+        movesLeft = gridDim * gridDim;
+        turnID = 2;
+    }
+
     public int winChecker(int[] pos) {
 
         // O - 2
@@ -112,7 +148,7 @@ public class Main extends Application {
 
         ok = true;
         for (int i = 0; i < gridDim; i++)
-            if (pos[i * gridDim + (gridDim-1-i)] != turnID)
+            if (pos[i * gridDim + (gridDim - 1 - i)] != turnID)
                 ok = false;
         if (ok) return turnID;
 
