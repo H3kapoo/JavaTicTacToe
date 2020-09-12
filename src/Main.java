@@ -1,15 +1,13 @@
 import javafx.application.Application;
-import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
-import java.awt.*;
+import java.util.ArrayList;
 
 
 //HekaBranch
@@ -19,39 +17,46 @@ public class Main extends Application {
         launch(args);
     }
 
+    int gridDim = 3;
+    int prefSize = 500;
+    int turnID = 2;  //O - Starts here  // O - 2   X - 3
+    boolean gameFinished = false;
+
     @Override
     public void start(Stage window) throws Exception {
 
-        int prefSize = 500;
+        Color bgColor = Color.web("#d6d6d6");
+        Point2D[] positions = generatePositions(prefSize);
+        int[] availablePos = generateAvailablePos(positions.length);
+
         Canvas canvas = new Canvas(prefSize, prefSize);
         GraphicsContext gc = canvas.getGraphicsContext2D();
-
-
-        boolean gameFinished = true;
-        boolean[] xTurn = {false};
-        int gridDim = 3;
-        Color bgColor = Color.web("#d6d6d6");
         clearScreen(gc, bgColor);
-        drawGrid(gc, Color.BLACK, gridDim);
-        Point2D[] positions = generatePositions(prefSize, gridDim);
-        boolean[] availablePos = generateAvailablePos(positions.length);
+        drawGrid(gc, Color.BLACK);
 
         canvas.setOnMouseClicked(e -> {
             int closestIndex = getClosestIndex(positions, e.getSceneX(), e.getSceneY());
 
-            if (availablePos[closestIndex]) {
-                if (xTurn[0])
-                    drawZero(gc, gridDim, Color.RED, positions[closestIndex].getX(), positions[closestIndex].getY());
-                else
-                    drawX(gc, gridDim, Color.RED, positions[closestIndex].getX(), positions[closestIndex].getY());
+            if (availablePos[closestIndex] == 1 && !gameFinished) {
+                if (turnID == 3) {
+                    drawX(gc, Color.RED, positions[closestIndex].getX(), positions[closestIndex].getY());
+                    availablePos[closestIndex] = 3;
+                }
+                if (turnID == 2) {
+                    drawZero(gc, Color.RED, positions[closestIndex].getX(), positions[closestIndex].getY());
+                    availablePos[closestIndex] = 2;
+                }
             }
 
-            availablePos[closestIndex] = false;
-            xTurn[0] = !xTurn[0];
+
+            int winnerID = winChecker(availablePos);
+            if (winnerID != 0) System.out.println("Winner is " + winnerID);
+
+            if (turnID == 3) turnID = 2;
+            else if (turnID == 2) turnID = 3;
 
         });
 
-        //loop
 
         StackPane layout = new StackPane();
         layout.getChildren().add(canvas);
@@ -59,12 +64,36 @@ public class Main extends Application {
         window.setTitle("Tic Tac Toe");
         window.setScene(scene);
         window.show();
+
     }
 
-    public boolean[] generateAvailablePos(int length) {
-        boolean[] av = new boolean[length];
+    //TODO: Win checker function
+    public int winChecker(int[] filledPositions) {
+
+        // O - 2
+        // X - 3
+
+        for(int i=0;i<gridDim;i++){
+            for(int j=0;j<gridDim;j++){
+                System.out.print(filledPositions[i*gridDim+j] + " ");
+            }
+            System.out.println();
+        }
+        /*
+        for (int i = 0; i < gridDim; i++) {
+            if (filledPositions[i] == turnID) {
+                System.out.print("K");
+            }
+        }*/
+        return 0;
+        //return filledPositions[1 * gridDim + 2] == checkFor;
+
+    }
+
+    public int[] generateAvailablePos(int length) {
+        int[] av = new int[length];
         for (int i = 0; i < length; i++)
-            av[i] = true;
+            av[i] = 1;
         return av;
     }
 
@@ -84,7 +113,7 @@ public class Main extends Application {
         return closest_index;
     }
 
-    public void drawX(GraphicsContext gc, int gridDim, Color color, double xPos, double yPos) {
+    public void drawX(GraphicsContext gc, Color color, double xPos, double yPos) {
 
         int size = (int) gc.getCanvas().getWidth();
         int XSize = (int) ((size / gridDim) * 0.4f); //80% of the space
@@ -101,7 +130,7 @@ public class Main extends Application {
         }
     }
 
-    public void drawZero(GraphicsContext gc, int gridDim, Color color, double xPos, double yPos) {
+    public void drawZero(GraphicsContext gc, Color color, double xPos, double yPos) {
 
         int size = (int) gc.getCanvas().getWidth();
         int zeroSize = (int) ((size / gridDim) * 0.8f); //80% of the space
@@ -114,7 +143,7 @@ public class Main extends Application {
         }
     }
 
-    public Point2D[] generatePositions(int size, int gridDim) throws Exception {
+    public Point2D[] generatePositions(int size) throws Exception {
 
         if (gridDim <= 0) throw new Exception("ERROR: gridDim must be greater than zero");
 
@@ -136,7 +165,7 @@ public class Main extends Application {
         gc.fillRect(0, 0, size, size);
     }
 
-    public void drawGrid(GraphicsContext gc, Color color, int gridDim) throws Exception {
+    public void drawGrid(GraphicsContext gc, Color color) throws Exception {
 
         if (gridDim <= 0) throw new Exception("ERROR: gridDim must be greater than zero");
 
