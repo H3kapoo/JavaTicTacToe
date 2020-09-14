@@ -11,6 +11,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 
+import java.util.ArrayList;
+
 
 //HekaBranch
 
@@ -19,15 +21,16 @@ public class Main extends Application {
         launch(args);
     }
 
-    int gridDim = 3;
-    int prefSize = 500;
-    int controlAreaSize = 50;
+    int gridDim = 6;                                             //Grid size
+    int turnID = 2;                                              //O - Starts here  // O - 2   X - 3
+    int dimToWin = 3;                                            //How many sprites of same type to win
+    int prefSize = 550;                                          //Scene playable size
+    int controlAreaSize = 50;                                    //Reset button area height size
     int movesLeft = gridDim * gridDim;
-    int turnID = 2;  //O - Starts here  // O - 2   X - 3
     boolean gameFinished = false;
     Button resetBtn;
-    Point2D[] positions = generatePositions(prefSize);
-    int[] availablePos = generateAvailablePos(positions.length);
+    Point2D[] positions = generatePositions(prefSize);           //For X and O
+    int[] availablePos = generateAvailablePos(positions.length); //To keep track of available spots
 
     @Override
     public void start(Stage window) throws Exception {
@@ -61,6 +64,7 @@ public class Main extends Application {
         Scene scene = new Scene(layout, prefSize, prefSize + controlAreaSize);
 
         window.setTitle("Tic Tac Toe");
+        window.setResizable(false);
         window.setScene(scene);
         window.show();
 
@@ -79,7 +83,8 @@ public class Main extends Application {
                 availablePos[closestIndex] = 2;
             }
 
-            int winnerID = winChecker(availablePos);
+            //int winnerID = winChecker(availablePos);
+            int winnerID = winCheckerOptimized(availablePos, closestIndex);
             if (winnerID != 0) {
                 gameFinished = true;
                 String winner = winnerID == 2 ? "O" : "X";
@@ -156,6 +161,82 @@ public class Main extends Application {
         return 0;
     }
 
+    public int winCheckerOptimized(int[] pos, int targetIndex) {
+
+        int targetX = targetIndex % gridDim;
+        int targetY = targetIndex / gridDim;
+
+        // horizontal
+        for (int i = 0; i <= gridDim - dimToWin; i++) {
+            boolean ok = true;
+            for (int i2 = i; i2 < i + dimToWin; i2++) {
+                int innerCheckID = pos[targetY * gridDim + i2];
+                if (turnID != innerCheckID) {
+                    ok = false;
+                    break;
+                }
+            }
+            if (ok) return turnID;
+        }
+
+        // vertical
+        for (int i = 0; i <= gridDim - dimToWin; i++) {
+            boolean ok = true;
+            for (int i2 = i; i2 < i + dimToWin; i2++) {
+                int innerCheckID = pos[i2 * gridDim + targetX];
+                if (turnID != innerCheckID) {
+                    ok = false;
+                    break;
+                }
+            }
+            if (ok) return turnID;
+        }
+
+        //primary diagonal
+        ArrayList<Integer> primaryArr = new ArrayList<>();
+        for (int i = -gridDim; i <= gridDim; i++) {
+            int x = targetX + i;
+            int y = targetY + i;
+            if (x >= 0 && x < gridDim && y >= 0 && y < gridDim)
+                primaryArr.add(pos[gridDim * y + x]);
+        }
+        if (primaryArr.size() >= dimToWin)
+            for (int i = 0; i <= primaryArr.size() - dimToWin; i++) {
+                boolean ok = true;
+                for (int i2 = i; i2 < i + dimToWin; i2++) {
+                    int innerCheckID = primaryArr.get(i2);
+                    if (turnID != innerCheckID) {
+                        ok = false;
+                        break;
+                    }
+                }
+                if (ok) return turnID;
+            }
+
+        //secondary diagonal
+        ArrayList<Integer> secondaryArr = new ArrayList<>();
+        for (int i = -gridDim; i <= gridDim; i++) {
+            int x = targetX - i;
+            int y = targetY + i;
+            if (x >= 0 && x < gridDim && y >= 0 && y < gridDim)
+                secondaryArr.add(pos[gridDim * y + x]);
+        }
+        if (secondaryArr.size() >= dimToWin)
+            for (int i = 0; i <= secondaryArr.size() - dimToWin; i++) {
+                boolean ok = true;
+                for (int i2 = i; i2 < i + dimToWin; i2++) {
+                    int innerCheckID = secondaryArr.get(i2);
+                    if (turnID != innerCheckID) {
+                        ok = false;
+                        break;
+                    }
+                }
+                if (ok) return turnID;
+            }
+
+        return 0;
+    }
+
     public int[] generateAvailablePos(int length) {
         int[] av = new int[length];
         for (int i = 0; i < length; i++)
@@ -209,10 +290,10 @@ public class Main extends Application {
         }
     }
 
-    public Point2D[] generatePositions(int size) {
+    public Point2D[] generatePositions(int sceneSize) {
 
         Point2D[] pos = new Point2D[gridDim * gridDim];
-        int stepSize = size / gridDim;
+        int stepSize = sceneSize / gridDim;
         int reducedStepSize = stepSize / 2;
 
         for (int i = 0; i < gridDim; i++) {
