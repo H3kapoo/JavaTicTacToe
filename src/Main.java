@@ -10,35 +10,48 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
-
 import java.util.ArrayList;
 
 
 //HekaBranch
-
 public class Main extends Application {
     public static void main(String[] args) {
         launch(args);
     }
 
-    int gridDim = 6;                                             //Grid size
-    int turnID = 2;                                              //O - Starts here  // O - 2   X - 3
-    int dimToWin = 3;                                            //How many sprites of same type to win
-    int prefSize = 550;                                          //Scene playable size
-    int controlAreaSize = 50;                                    //Reset button area height size
-    int movesLeft = gridDim * gridDim;
+    int gridDim;                                             //Grid size
+    int turnID;                                              //O - Starts here  // O - 2   X - 3
+    int dimToWin;                                            //How many sprites of same type to win
+    int windowSize;                                          //Scene playable size
+    int controlAreaSize = 50;                                //Reset button area height size
+    int movesLeft;
     boolean gameFinished = false;
     Button resetBtn;
-    Point2D[] positions = generatePositions(prefSize);           //For X and O
-    int[] availablePos = generateAvailablePos(positions.length); //To keep track of available spots
+    Point2D[] positions;                                     //For X and O
+    int[] availablePos;                                      //To keep track of available spots
 
     @Override
     public void start(Stage window) throws Exception {
 
+
+        SettingsDialog.display();
+        if (SettingsDialog.close) return;
+
+        windowSize = SettingsDialog.windowSize;
+        gridDim = SettingsDialog.gridDim;
+        dimToWin = SettingsDialog.dimToWin;
+        turnID = SettingsDialog.turnID;
+
+        if (dimToWin > gridDim) dimToWin = gridDim;
+
+        movesLeft = gridDim*gridDim;
+        positions = generatePositions(windowSize);
+        availablePos = generateAvailablePos(positions.length);
+
         Color bgColor = Color.web("#d6d6d6");
 
         resetBtn = new Button("Click to reset");
-        Canvas canvas = new Canvas(prefSize, prefSize);
+        Canvas canvas = new Canvas(windowSize, windowSize);
 
         GraphicsContext gc = canvas.getGraphicsContext2D();
         clearScreen(gc, bgColor);
@@ -48,10 +61,10 @@ public class Main extends Application {
         HBox controlArea = new HBox();
 
         resetBtn.setTextAlignment(TextAlignment.CENTER);
-        resetBtn.setPrefSize(prefSize, controlAreaSize);
+        resetBtn.setPrefSize(windowSize, controlAreaSize);
         resetBtn.getStyleClass().add("controlBtn");
 
-        controlArea.setPrefSize(prefSize, controlAreaSize);
+        controlArea.setPrefSize(windowSize, controlAreaSize);
         controlArea.getStylesheets().add("style.css");
         controlArea.getStyleClass().add("controlArea");
 
@@ -61,7 +74,7 @@ public class Main extends Application {
 
         controlArea.getChildren().add(resetBtn);
         layout.getChildren().addAll(canvas, controlArea);
-        Scene scene = new Scene(layout, prefSize, prefSize + controlAreaSize);
+        Scene scene = new Scene(layout, windowSize, windowSize + controlAreaSize);
 
         window.setTitle("Tic Tac Toe");
         window.setResizable(false);
@@ -107,7 +120,7 @@ public class Main extends Application {
     public void reset(GraphicsContext gc, Color bgColor, Color gridColor) {
         clearScreen(gc, bgColor);
         drawGrid(gc, Color.BLACK);
-        positions = generatePositions(prefSize);
+        positions = generatePositions(windowSize);
         availablePos = generateAvailablePos(positions.length);
         gameFinished = false;
         resetBtn.setText("Click to reset");

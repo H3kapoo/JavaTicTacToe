@@ -8,3 +8,10 @@
 .controlBtn:pressed{
     -fx-background-color: #a7a7a7;
 }
+
+.combo-box{
+    -fx-padding: 0 0 0 20;
+}
+.combo-box>.list-cell {
+    -fx-alignment: center;
+}
