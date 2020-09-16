@@ -1,0 +1,17 @@
+.controlArea{
+    -fx-background-color: #d6d6d6;
+}
+.controlBtn{
+    -fx-background-color: #b7b7b7;
+
+}
+.controlBtn:pressed{
+    -fx-background-color: #a7a7a7;
+}
+
+.combo-box{
+    -fx-padding: 0 0 0 20;
+}
+.combo-box>.list-cell {
+    -fx-alignment: center;
+}
