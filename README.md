@@ -14,6 +14,6 @@ By using the settings dialog at the start of the program you can change:
     * Who starts first
     
 ## Some pictures
-(https://imgur.com/TQ300aR)
+![image1](https://imgur.com/TQ300aR)
 
 
