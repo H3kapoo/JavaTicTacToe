@@ -14,6 +14,8 @@ By using the settings dialog at the start of the program you can change:
     * Who starts first
     
 ## Some pictures
-![image1](https://i.imgur.com/HcWKTFv.png)  ![image2](https://i.imgur.com/HcWKTFv.png)
+![settings panel](https://i.imgur.com/HcWKTFv.png) ![play area empty](https://i.imgur.com/cn0aFNz.png)
+![O wins](https://i.imgur.com/vp146v1.png) ![X wins](https://i.imgur.com/l0BLmHg.png)
+![Large board example](https://i.imgur.com/d0kCrBe.png)
 
 
