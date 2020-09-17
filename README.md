@@ -8,10 +8,10 @@
 
 ## Ok,what's so "modular" ?
 By using the settings dialog at the start of the program you can change:
-    * Window's size
-    * Play area size (grid's size)
-    * How many sprites of the same type are necessary in order to win
-    * Who starts first
+* Window's size
+* Play area size (grid's size)
+* How many sprites of the same type are necessary in order to win
+* Who starts first
     
 ## Some pictures
 ![settings panel](https://i.imgur.com/HcWKTFv.png) ![play area empty](https://i.imgur.com/cn0aFNz.png)
