@@ -5,7 +5,7 @@
 * Download/Clone the repo and import the project into your IDE (InteliJ IDEA was used in this case).
 * Download and add the [JavaFX](https://gluonhq.com/products/javafx/) library to the project.
 * Build and run.
-* OOOOOR just download the **TicTacToe Build** containing the **.exe** file (in the bin folder) 
+* OOOOOR just download the **TicTacToe Build.rar** containing the **.exe** file (in the bin folder) 
 
 ## Ok, what's so "modular"?
 
